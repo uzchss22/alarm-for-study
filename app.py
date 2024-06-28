@@ -18,22 +18,22 @@ class StudyBreakTimer:
         pygame.mixer.init()
 
         # Configure grid columns to expand
-        root.grid_columnconfigure(0, weight=1)
-        root.grid_columnconfigure(1, weight=1)
+        for i in range(4):
+            root.grid_columnconfigure(i, weight=1)
 
         # Study time setup
-        tk.Label(root, text="Study Time (minutes):").grid(row=0, column=0, columnspan=2, sticky="ew")
+        tk.Label(root, text="Study Time (minutes):").grid(row=0, column=0, columnspan=4, sticky="ew")
         self.study_spinbox = tk.Spinbox(root, from_=1, to_=120, increment=5, textvariable=self.study_minutes)
-        self.study_spinbox.grid(row=1, column=0, columnspan=2, sticky="ew")
+        self.study_spinbox.grid(row=1, column=0, columnspan=4, sticky="ew")
 
         # Break time setup
-        tk.Label(root, text="Break Time (minutes):").grid(row=2, column=0, columnspan=2, sticky="ew")
+        tk.Label(root, text="Break Time (minutes):").grid(row=2, column=0, columnspan=4, sticky="ew")
         self.break_spinbox = tk.Spinbox(root, from_=1, to_=60, increment=5, textvariable=self.break_minutes)
-        self.break_spinbox.grid(row=3, column=0, columnspan=2, sticky="ew")
+        self.break_spinbox.grid(row=3, column=0, columnspan=4, sticky="ew")
 
         # Alarm file setup
-        tk.Label(root, text="Sound file path:").grid(row=4, column=0, columnspan=2, sticky="ew")
-        tk.Entry(root, textvariable=self.alarm_file).grid(row=5, column=0, sticky="ew")
+        tk.Label(root, text="Sound file path:").grid(row=4, column=0, columnspan=4, sticky="ew")
+        tk.Entry(root, textvariable=self.alarm_file).grid(row=5, column=0, columnspan=3, sticky="ew")
 
         # Load images for buttons
         self.browse_image = tk.PhotoImage(file="folder.png")
@@ -41,19 +41,19 @@ class StudyBreakTimer:
         self.stop_image = tk.PhotoImage(file="stop.png")
         self.mute_image = tk.PhotoImage(file="mute.png")
 
-        tk.Button(root, image=self.browse_image, command=self.browse_file).grid(row=5, column=1, sticky="ew")
+        tk.Button(root, image=self.browse_image, command=self.browse_file).grid(row=5, column=3, sticky="ew")
 
         # Start button
         self.start_button = tk.Button(root, image=self.play_image, command=self.start_timer)
-        self.start_button.grid(row=6, column=0, sticky="ew")
+        self.start_button.grid(row=6, column=0, columnspan=2, sticky="ew")
 
         # Stop timer button
         self.stop_timer_button = tk.Button(root, image=self.stop_image, command=self.stop_timer)
-        self.stop_timer_button.grid(row=6, column=1, sticky="ew")
+        self.stop_timer_button.grid(row=6, column=2, columnspan=2, sticky="ew")
 
         # Stop sound button
         self.stop_sound_button = tk.Button(root, image=self.mute_image, command=self.stop_sound)
-        self.stop_sound_button.grid(row=7, column=0, columnspan=2, sticky="ew")
+        self.stop_sound_button.grid(row=7, column=0, columnspan=4, sticky="ew")
 
         # Protocol to handle window closing
         self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
