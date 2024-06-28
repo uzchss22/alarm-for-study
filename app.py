@@ -3,16 +3,69 @@ from tkinter import filedialog, messagebox
 from threading import Thread
 import time
 import pygame
+import os
+
+
+class ToolTip:
+    def __init__(self, widget, text):
+        self.widget = widget
+        self.text = text
+        self.tipwindow = None
+        self.id = None
+        self.x = self.y = 0
+        widget.bind("<Enter>", self.enter)
+        widget.bind("<Leave>", self.leave)
+
+    def enter(self, event=None):
+        self.schedule()
+
+    def leave(self, event=None):
+        self.unschedule()
+        self.hidetip()
+
+    def schedule(self):
+        self.unschedule()
+        self.id = self.widget.after(500, self.showtip)
+
+    def unschedule(self):
+        id = self.id
+        self.id = None
+        if id:
+            self.widget.after_cancel(id)
+
+    def showtip(self, event=None):
+        x = y = 0
+        x, y, _, _ = self.widget.bbox("insert")
+        x += self.widget.winfo_rootx() + 25
+        y += self.widget.winfo_rooty() + 25
+        self.tipwindow = tw = tk.Toplevel(self.widget)
+        tw.wm_overrideredirect(True)
+        tw.wm_geometry(f"+{x}+{y}")
+        label = tk.Label(tw, text=self.text, justify=tk.LEFT,
+                         background="#ffffe0", relief=tk.SOLID, borderwidth=1,
+                         font=("tahoma", "8", "normal"))
+        label.pack(ipadx=1)
+
+    def hidetip(self):
+        tw = self.tipwindow
+        self.tipwindow = None
+        if tw:
+            tw.destroy()
+
 
 class StudyBreakTimer:
     def __init__(self, root):
         self.root = root
         self.root.title("")
 
+        # Get the script directory and set the default alarm file
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        default_alarm_file = os.path.join(script_dir, "default_sound.mp3")
+
         # Set default values
         self.study_minutes = tk.IntVar(value=1)
         self.break_minutes = tk.IntVar(value=1)
-        self.alarm_file = tk.StringVar()
+        self.alarm_file = tk.StringVar(value=default_alarm_file)
 
         # Initialize pygame mixer
         pygame.mixer.init()
@@ -41,19 +94,24 @@ class StudyBreakTimer:
         self.stop_image = tk.PhotoImage(file="stop.png")
         self.mute_image = tk.PhotoImage(file="mute.png")
 
-        tk.Button(root, image=self.browse_image, command=self.browse_file).grid(row=5, column=3, sticky="ew")
+        browse_button = tk.Button(root, image=self.browse_image, command=self.browse_file)
+        browse_button.grid(row=5, column=3, sticky="ew")
+        ToolTip(browse_button, "Browse for an alarm sound file")
 
         # Start button
         self.start_button = tk.Button(root, image=self.play_image, command=self.start_timer)
         self.start_button.grid(row=6, column=0, columnspan=2, sticky="ew")
+        ToolTip(self.start_button, "Start the study timer")
 
         # Stop timer button
         self.stop_timer_button = tk.Button(root, image=self.stop_image, command=self.stop_timer)
         self.stop_timer_button.grid(row=6, column=2, columnspan=2, sticky="ew")
+        ToolTip(self.stop_timer_button, "Stop the study timer")
 
         # Stop sound button
         self.stop_sound_button = tk.Button(root, image=self.mute_image, command=self.stop_sound)
         self.stop_sound_button.grid(row=7, column=0, columnspan=4, sticky="ew")
+        ToolTip(self.stop_sound_button, "Stop the alarm sound")
 
         # Protocol to handle window closing
         self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
