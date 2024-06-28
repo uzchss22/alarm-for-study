@@ -67,7 +67,6 @@ class StudyBreakTimer:
         self.root = root
         self.root.title("")
 
-        script_dir = os.path.dirname(os.path.abspath(__file__))
         default_alarm_file = resource_path("default_sound.mp3")
 
         self.study_minutes = tk.IntVar(value=25)
@@ -99,25 +98,20 @@ class StudyBreakTimer:
         browse_button.grid(row=5, column=3, sticky="ew")
         ToolTip(browse_button, "Browse for an alarm sound file")
 
-        
         self.start_button = tk.Button(root, image=self.play_image, command=self.start_timer)
         self.start_button.grid(row=6, column=0, columnspan=2, sticky="ew")
         ToolTip(self.start_button, "Start the study timer")
 
-        
         self.stop_timer_button = tk.Button(root, image=self.stop_image, command=self.stop_timer)
         self.stop_timer_button.grid(row=6, column=2, columnspan=2, sticky="ew")
         ToolTip(self.stop_timer_button, "Stop the study timer")
 
-        
         self.stop_sound_button = tk.Button(root, image=self.mute_image, command=self.stop_sound)
         self.stop_sound_button.grid(row=7, column=0, columnspan=4, sticky="ew")
         ToolTip(self.stop_sound_button, "Stop the alarm sound")
 
-        
         self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
 
-        
         self.running = False
 
     def browse_file(self):
@@ -130,12 +124,12 @@ class StudyBreakTimer:
             messagebox.showwarning("Warning", "Please select an alarm sound file.")
             return
         self.running = True
-        self.start_button.config(state=tk.DISABLED)  
+        self.start_button.config(state=tk.DISABLED)
         Thread(target=self.run_timer).start()
 
     def stop_timer(self):
         self.running = False
-        self.start_button.config(state=tk.NORMAL)  
+        self.start_button.config(state=tk.NORMAL)
 
     def stop_sound(self):
         pygame.mixer.music.stop()
@@ -153,6 +147,13 @@ class StudyBreakTimer:
             pygame.mixer.music.load(alarm_file)
             pygame.mixer.music.play()
 
+            # Bring the window to the foreground and set focus on the mute button
+            self.root.deiconify()
+            self.root.lift()
+            self.root.focus_force()
+            self.root.wm_attributes("-topmost", 1)
+            self.stop_sound_button.focus()
+
             while pygame.mixer.music.get_busy() and self.running:
                 time.sleep(1)
 
@@ -165,6 +166,13 @@ class StudyBreakTimer:
                 time.sleep(1)
             pygame.mixer.music.load(alarm_file)
             pygame.mixer.music.play()
+
+            # Bring the window to the foreground and set focus on the mute button
+            self.root.deiconify()
+            self.root.lift()
+            self.root.focus_force()
+            self.root.wm_attributes("-topmost", 1)
+            self.stop_sound_button.focus()
 
             while pygame.mixer.music.get_busy() and self.running:
                 time.sleep(1)
